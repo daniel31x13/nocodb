@@ -33,7 +33,7 @@
 }
 
 .anticon-check-circle {
-  @apply !relative top-[-1px] left-0;  
+  @apply !relative top-[-1px] left-0;
 }
 
 html,
@@ -586,4 +586,12 @@ input[type='number'] {
 
 .ant-pagination .ant-pagination-item-link-icon {
   @apply !block !py-1.5;
+}
+
+input[type='url'] {
+  @apply !p-0;
+}
+
+input[type='email'] {
+  @apply !p-0;
 }
