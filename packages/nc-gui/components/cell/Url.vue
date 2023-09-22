@@ -60,6 +60,8 @@ const vModel = computed({
 
 const isValid = computed(() => value && isValidURL(value))
 
+const isInput
+
 const url = computed(() => {
   if (!value || !isValidURL(value)) return ''
 
@@ -95,9 +97,9 @@ watch(
       :ref="focus"
       v-model="vModel"
       :placeholder="isEditColumn ? 'Enter default URL (Optional)' : ''"
-      class="outline-none focus:!outline-none focus:ring-0 focus:border-none !border-none !outline-none text-sm w-full px-2 py-2 bg-transparent h-full"
+      class="outline-none focus:ring-0 border-none text-sm w-full px-2 h-full"
       :type="isForm ? 'url' : 'text'"
-      :autocomplete="isForm ? 'url' : ''"
+      :autocomplete="isForm ? 'url' : 'off'"
       @blur="editEnabled = false"
       @keydown.down.stop
       @keydown.left.stop
