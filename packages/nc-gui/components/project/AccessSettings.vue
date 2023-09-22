@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { OrgUserRoles, WorkspaceUserRoles } from 'nocodb-sdk'
-import { OrderedProjectRoles, ProjectRoles, WorkspaceRolesToProjectRoles } from 'nocodb-sdk'
+import type { WorkspaceUserRoles } from 'nocodb-sdk'
+import { OrderedProjectRoles, OrgUserRoles, ProjectRoles, WorkspaceRolesToProjectRoles, extractRolesObj } from 'nocodb-sdk'
 import InfiniteLoading from 'v3-infinite-loading'
 import { isEeUI, storeToRefs, stringToColour, timeAgo } from '#imports'
 
@@ -8,7 +8,9 @@ const projectsStore = useProjects()
 const { getProjectUsers, createProjectUser, updateProjectUser, removeProjectUser } = projectsStore
 const { activeProjectId } = storeToRefs(projectsStore)
 
-const { projectRoles } = useRoles()
+const { orgRoles, projectRoles } = useRoles()
+
+const isSuper = computed(() => orgRoles.value?.[OrgUserRoles.SUPER_ADMIN])
 
 const collaborators = ref<
   {
@@ -45,11 +47,12 @@ const loadCollaborators = async () => {
       ...users.map((user: any) => ({
         ...user,
         project_roles: user.roles,
-        roles:
-          user.roles ??
-          (user.workspace_roles
-            ? WorkspaceRolesToProjectRoles[user.workspace_roles as WorkspaceUserRoles] ?? ProjectRoles.NO_ACCESS
-            : ProjectRoles.NO_ACCESS),
+        roles: extractRolesObj(user.main_roles)?.[OrgUserRoles.SUPER_ADMIN]
+          ? OrgUserRoles.SUPER_ADMIN
+          : user.roles ??
+            (user.workspace_roles
+              ? WorkspaceRolesToProjectRoles[user.workspace_roles as WorkspaceUserRoles] ?? ProjectRoles.NO_ACCESS
+              : ProjectRoles.NO_ACCESS),
       })),
     ]
   } catch (e: any) {
@@ -142,7 +145,9 @@ onMounted(async () => {
     const currentRoleIndex = OrderedProjectRoles.findIndex(
       (role) => projectRoles.value && Object.keys(projectRoles.value).includes(role),
     )
-    if (currentRoleIndex !== -1) {
+    if (isSuper.value) {
+      accessibleRoles.value = OrderedProjectRoles.slice(1)
+    } else if (currentRoleIndex !== -1) {
       accessibleRoles.value = OrderedProjectRoles.slice(currentRoleIndex + 1)
     }
   } catch (e: any) {
