@@ -80,7 +80,13 @@ const deleteUser = async () => {
   try {
     await api.orgUsers.delete(deleteModalInfo.value?.id as string)
     message.success(t('msg.success.userDeleted'))
+
     await loadUsers()
+
+    if (!users.value.length && currentPage.value !== 1) {
+      currentPage.value--
+      loadUsers(currentPage.value)
+    }
     $e('a:org-user:user-deleted')
   } catch (e: any) {
     message.error(await extractSdkResponseErrorMsg(e))
@@ -169,7 +175,7 @@ const openDeleteModal = (user: UserType) => {
           </NcButton>
         </div>
       </div>
-      <div class="w-[780px] mt-5 border-1 rounded-md h-[520px]">
+      <div class="w-[780px] mt-5 border-1 rounded-md h-[613px]">
         <div class="flex w-full bg-gray-50 border-b-1">
           <span class="py-3.5 text-gray-500 font-medium text-3.5 w-1/3 text-start pl-10">{{ $t('labels.email') }}</span>
           <span class="py-3.5 text-gray-500 font-medium text-3.5 w-1/3 text-start pl-20">{{ $t('objects.role') }}</span>
@@ -179,8 +185,7 @@ const openDeleteModal = (user: UserType) => {
         <div v-if="!users.length" class="">
           <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="$t('labels.noData')" />
         </div>
-
-        <div v-for="el of users" v-else :key="el.id" data-testid="nc-token-list" class="flex border-b-1 py-3 justify-around px-5">
+        <div v-for="el of users" v-else :key="el.id" data-testid="nc-token-list" class="flex py-3 justify-around px-5 border-b-1">
           <span class="text-3.5 text-start w-1/3 pl-5">
             {{ el.email }}
           </span>
@@ -268,7 +273,14 @@ const openDeleteModal = (user: UserType) => {
           </span>
         </div>
       </div>
-
+      <div v-if="pagination.total > 10" class="flex items-center justify-center mt-7">
+        <a-pagination
+          v-model:current="currentPage"
+          :total="pagination.total"
+          show-less-items
+          @change="loadUsers(currentPage, currentLimit)"
+        />
+      </div>
       <GeneralDeleteModal v-model:visible="isOpen" entity-name="User" :on-delete="() => deleteUser()">
         <template #entity-preview>
           <span>
