@@ -1,10 +1,14 @@
 <script lang="ts" setup>
 import { OrgUserRoles } from 'nocodb-sdk'
+import { useDebounceFn } from '@vueuse/core'
 import type { OrgUserReqType, RequestParams, UserType } from 'nocodb-sdk'
 import type { User } from '#imports'
 import { extractSdkResponseErrorMsg, iconMap, useApi, useCopy, useDashboard, useNuxtApp } from '#imports'
 
-const { api } = useApi()
+const { api, isLoading } = useApi()
+
+// for loading screen
+isLoading.value = true
 
 const { $e } = useNuxtApp()
 
@@ -34,7 +38,7 @@ const pagination = reactive({
   position: ['bottomCenter'],
 })
 
-const loadUsers = async (page = currentPage.value, limit = currentLimit.value) => {
+const loadUsers = useDebounceFn(async (page = currentPage.value, limit = currentLimit.value) => {
   currentPage.value = page
   try {
     const response: any = await api.orgUsers.list({
@@ -55,7 +59,7 @@ const loadUsers = async (page = currentPage.value, limit = currentLimit.value) =
   } catch (e: any) {
     message.error(await extractSdkResponseErrorMsg(e))
   }
-}
+}, 500)
 
 onMounted(() => {
   loadUsers()
@@ -154,19 +158,13 @@ const openDeleteModal = (user: UserType) => {
     <div class="max-w-195 mx-auto">
       <div class="text-xl my-4 text-left font-weight-bold">User Management</div>
       <div class="py-2 flex gap-4 items-center justify-between">
-        <a-input
-          v-model:value="searchText"
-          class="!max-w-90 !rounded-md"
-          placeholder="Search members"
-          @blur="() => loadUsers"
-          @keydown.enter="() => loadUsers"
-        >
+        <a-input v-model:value="searchText" class="!max-w-90 !rounded-md" placeholder="Search members" @change="loadUsers()">
           <template #prefix>
             <PhMagnifyingGlassBold class="!h-3.5 text-gray-500" />
           </template>
         </a-input>
         <div class="flex gap-3 items-center justify-center">
-          <component :is="iconMap.reload" class="cursor-pointer" @click="() => loadUsers" />
+          <component :is="iconMap.reload" class="cursor-pointer" @click="loadUsers(currentPage, currentLimit)" />
           <NcButton data-testid="nc-super-user-invite" size="small" type="primary" @click="openInviteModal">
             <div class="flex items-center gap-1">
               <component :is="iconMap.plus" />
@@ -179,99 +177,100 @@ const openDeleteModal = (user: UserType) => {
         <div class="flex w-full bg-gray-50 border-b-1">
           <span class="py-3.5 text-gray-500 font-medium text-3.5 w-1/3 text-start pl-10">{{ $t('labels.email') }}</span>
           <span class="py-3.5 text-gray-500 font-medium text-3.5 w-1/3 text-start pl-20">{{ $t('objects.role') }}</span>
-          <span class="py-3.5 text-gray-500 font-medium text-3.5 w-1/3 text-end pl-30">Actions</span>
+          <span class="py-3.5 text-gray-500 font-medium text-3.5 w-1/3 text-end pl-42">Actions</span>
+        </div>
+        <div v-if="isLoading" class="flex items-center justify-center text-center h-[513px]">
+          <GeneralLoader size="xlarge" />
         </div>
         <!-- if users are empty -->
-        <div v-if="!users.length" class="">
+        <div v-else-if="!users.length" class="flex items-center justify-center text-center h-[513px]">
           <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="$t('labels.noData')" />
         </div>
-        <div v-for="el of users" v-else :key="el.id" data-testid="nc-token-list" class="flex py-3 justify-around px-5 border-b-1">
-          <span class="text-3.5 text-start w-1/3 pl-5">
-            {{ el.email }}
-          </span>
-          <span class="text-3.5 text-start w-1/3 pl-18">
-            <div v-if="el?.roles?.includes('super')" class="font-weight-bold">Super Admin</div>
-            <a-select
-              v-else
-              v-model:value="el.roles"
-              class="w-[220px] nc-user-roles"
-              :dropdown-match-select-width="false"
-              @change="updateRole(el.id, el.roles as string)"
-            >
-              <a-select-option
-                class="nc-users-list-role-option"
-                :value="OrgUserRoles.CREATOR"
-                :label="$t(`objects.roleType.orgLevelCreator`)"
+        <section v-else class="tbody">
+          <div
+            v-for="el of users"
+            :key="el.id"
+            data-testid="nc-token-list"
+            class="flex py-3 justify-around px-5 border-b-1"
+            :class="{
+              'py-4': el.roles?.includes('super'),
+            }"
+          >
+            <span class="text-3.5 text-start w-1/3 pl-5">
+              {{ el.email }}
+            </span>
+            <span class="text-3.5 text-start w-1/3 pl-18">
+              <div v-if="el?.roles?.includes('super')" class="font-weight-bold">Super Admin</div>
+              <a-select
+                v-else
+                v-model:value="el.roles"
+                class="w-[220px] nc-user-roles"
+                :dropdown-match-select-width="false"
+                @change="updateRole(el.id, el.roles as string)"
               >
-                <div>{{ $t(`objects.roleType.orgLevelCreator`) }}</div>
-                <span class="text-gray-500 text-xs whitespace-normal">
-                  {{ $t('msg.info.roles.orgCreator') }}
-                </span>
-              </a-select-option>
+                <a-select-option
+                  class="nc-users-list-role-option"
+                  :value="OrgUserRoles.CREATOR"
+                  :label="$t(`objects.roleType.orgLevelCreator`)"
+                >
+                  <div>{{ $t(`objects.roleType.orgLevelCreator`) }}</div>
+                  <span class="text-gray-500 text-xs whitespace-normal">
+                    {{ $t('msg.info.roles.orgCreator') }}
+                  </span>
+                </a-select-option>
 
-              <a-select-option
-                class="nc-users-list-role-option"
-                :value="OrgUserRoles.VIEWER"
-                :label="$t(`objects.roleType.orgLevelViewer`)"
+                <a-select-option
+                  class="nc-users-list-role-option"
+                  :value="OrgUserRoles.VIEWER"
+                  :label="$t(`objects.roleType.orgLevelViewer`)"
+                >
+                  <div>{{ $t(`objects.roleType.orgLevelViewer`) }}</div>
+                  <span class="text-gray-500 text-xs whitespace-normal">
+                    {{ $t('msg.info.roles.orgViewer') }}
+                  </span>
+                </a-select-option>
+              </a-select>
+            </span>
+            <span class="w-1/3 pl-43">
+              <div
+                class="flex items-center gap-2"
+                :class="{
+                  'opacity-0': el.roles?.includes('super'),
+                }"
               >
-                <div>{{ $t(`objects.roleType.orgLevelViewer`) }}</div>
-                <span class="text-gray-500 text-xs whitespace-normal">
-                  {{ $t('msg.info.roles.orgViewer') }}
-                </span>
-              </a-select-option>
-            </a-select>
-          </span>
-          <span class="w-1/3 pl-35">
-            <div class="flex items-center gap-2">
-              <NcDropDown class="flex" placement="bottomRight" overlay-class-name="nc-dropdown-user-mgmt">
-                <template #overlay>
-                  <a-menu>
-                    <a-menu-item>
-                      <div class="flex flex-row items-center py-3" @click="copyPasswordResetUrl(el)">
-                        <component :is="iconMap.copy" class="flex h-[1rem] text-gray-500" />
-                        <div class="text-xs pl-2">{{ $t('activity.copyPasswordResetURL') }}</div>
-                      </div>
-                    </a-menu-item>
-                    <a-menu-item>
-                      <div class="flex flex-row items-center py-3" @click="isOpen = true">
-                        <!-- Delete user modal -->
-
-                        <component :is="iconMap.delete" data-testid="nc-super-user-delete" class="flex h-[1rem] text-gray-500" />
-                        <div class="text-xs pl-2">{{ $t('general.delete') }}</div>
-                      </div>
-                    </a-menu-item>
-                  </a-menu>
-                </template>
-              </NcDropDown>
-
-              <NcDropdown :trigger="['click']">
-                <MdiDotsVertical
-                  class="border-1 !text-gray-600 h-5.5 w-5.5 rounded outline-0 p-0.5 nc-workspace-menu transform transition-transform !text-gray-400 cursor-pointer hover:(!text-gray-500 bg-gray-100)"
-                />
-                <template #overlay>
-                  <NcMenu>
-                    <template v-if="!el.roles?.includes('super')">
-                      <!-- Resend invite Email -->
-                      <NcMenuItem @click="resendInvite(el)">
-                        <component :is="iconMap.email" class="flex h-[1rem] text-gray-500" />
-                        <div class="text-sm pl-2">{{ $t('activity.resendInvite') }}</div>
+                <NcDropdown :trigger="['click']">
+                  <MdiDotsVertical
+                    class="border-1 !text-gray-600 h-5.5 w-5.5 rounded outline-0 p-0.5 nc-workspace-menu transform transition-transform !text-gray-400 cursor-pointer hover:(!text-gray-500 bg-gray-100)"
+                  />
+                  <template #overlay>
+                    <NcMenu>
+                      <template v-if="!el.roles?.includes('super')">
+                        <!-- Resend invite Email -->
+                        <NcMenuItem @click="resendInvite(el)">
+                          <component :is="iconMap.email" class="flex text-gray-500" />
+                          <div>{{ $t('activity.resendInvite') }}</div>
+                        </NcMenuItem>
+                        <NcMenuItem @click="copyInviteUrl(el)">
+                          <component :is="iconMap.copy" class="flex text-gray-500" />
+                          <div>{{ $t('activity.copyInviteURL') }}</div>
+                        </NcMenuItem>
+                        <NcMenuItem @click="copyPasswordResetUrl(el)">
+                          <component :is="iconMap.copy" class="flex text-gray-500" />
+                          <div>{{ $t('activity.copyPasswordResetURL') }}</div>
+                        </NcMenuItem>
+                      </template>
+                      <NcDivider v-if="!el.roles?.includes('super')" />
+                      <NcMenuItem class="!text-red-500 !hover:bg-red-50" @click="openDeleteModal(el)">
+                        <MaterialSymbolsDeleteOutlineRounded />
+                        Remove user
                       </NcMenuItem>
-                      <NcMenuItem @click="copyInviteUrl(el)">
-                        <component :is="iconMap.copy" class="flex h-[1rem] text-gray-500" />
-                        <div class="text-sm pl-2">{{ $t('activity.copyInviteURL') }}</div>
-                      </NcMenuItem>
-                    </template>
-                    <NcDivider v-if="!el.roles?.includes('super')" />
-                    <NcMenuItem class="!text-red-500 !hover:bg-red-50" @click="openDeleteModal(el)">
-                      <MaterialSymbolsDeleteOutlineRounded />
-                      Remove user
-                    </NcMenuItem>
-                  </NcMenu>
-                </template>
-              </NcDropdown>
-            </div>
-          </span>
-        </div>
+                    </NcMenu>
+                  </template>
+                </NcDropdown>
+              </div>
+            </span>
+          </div>
+        </section>
       </div>
       <div v-if="pagination.total > 10" class="flex items-center justify-center mt-7">
         <a-pagination
@@ -301,3 +300,9 @@ const openDeleteModal = (user: UserType) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.tbody div:nth-child(10) {
+  border-bottom: none;
+}
+</style>
