@@ -78,6 +78,7 @@ import Down from '~icons/material-symbols/keyboard-arrow-down-rounded'
 import PhTriangleFill from '~icons/ph/triangle-fill'
 import LcSend from '~icons/lucide/send'
 import NcCommentHere from '~icons/nc-icons/comment-here'
+import Project from '~icons/nc-icons/project'
 
 // Roles
 import MaterialSymbolsManageAccountsOutline from '~icons/material-symbols/manage-accounts-outline'
@@ -242,6 +243,7 @@ export const iconMap = {
   addOutlineBox: MsAddBoxOutline,
   loading: h('span', { class: 'material-symbols' }, 'autorenew'),
   arrowCollapse: Up,
+  project: Project,
   markerAlert: h('span', { class: 'material-symbols' }, 'warning'),
   appStore: h('span', { class: 'material-symbols' }, 'apps'),
   chevronLeft: h('span', { class: 'material-symbols' }, 'chevron_left'),
