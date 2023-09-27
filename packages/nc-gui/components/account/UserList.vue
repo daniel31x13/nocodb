@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { OrgUserRoles } from 'nocodb-sdk'
-import { useDebounceFn } from '@vueuse/core'
 import type { OrgUserReqType, RequestParams, UserType } from 'nocodb-sdk'
 import type { User } from '#imports'
-import { extractSdkResponseErrorMsg, iconMap, useApi, useCopy, useDashboard, useNuxtApp } from '#imports'
+import { extractSdkResponseErrorMsg, iconMap, useApi, useCopy, useDashboard, useDebounceFn, useNuxtApp } from '#imports'
 
 const { api, isLoading } = useApi()
 
@@ -183,7 +182,7 @@ const openDeleteModal = (user: UserType) => {
           <GeneralLoader size="xlarge" />
         </div>
         <!-- if users are empty -->
-        <div v-else-if="!users.length" class="flex items-center justify-center text-center h-[513px]">
+        <div v-else-if="!users.length" class="flex items-center justify-center text-center h-128.25">
           <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="$t('labels.noData')" />
         </div>
         <section v-else class="tbody">
@@ -204,7 +203,7 @@ const openDeleteModal = (user: UserType) => {
               <a-select
                 v-else
                 v-model:value="el.roles"
-                class="w-[220px] nc-user-roles"
+                class="w-55 nc-user-roles"
                 :dropdown-match-select-width="false"
                 @change="updateRole(el.id, el.roles as string)"
               >
