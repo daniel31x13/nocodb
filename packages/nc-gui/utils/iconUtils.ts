@@ -12,7 +12,6 @@ import MdiThumbUp from '~icons/mdi/thumb-up'
 import MdiThumbUpOutline from '~icons/mdi/thumb-up-outline'
 import MdiFlag from '~icons/mdi/flag'
 import MdiFlagOutline from '~icons/mdi/flag-outline'
-import MdiTable from '~icons/mdi/table'
 import MsMove from '~icons/material-symbols/drive-file-move-outline'
 import MSCloseRounded from '~icons/material-symbols/close-rounded'
 import MdiTableLarge from '~icons/mdi/table-large'
@@ -79,6 +78,7 @@ import PhTriangleFill from '~icons/ph/triangle-fill'
 import LcSend from '~icons/lucide/send'
 import NcCommentHere from '~icons/nc-icons/comment-here'
 import Project from '~icons/nc-icons/project'
+import TableIcon from '~icons/nc-icons/table'
 
 // Roles
 import MaterialSymbolsManageAccountsOutline from '~icons/material-symbols/manage-accounts-outline'
@@ -321,7 +321,7 @@ export const iconMap = {
   // threeDotHorizontal: h('span', { class: 'material-symbols' }, 'more_horiz'),
   threeDotVertical: MdiDotsVertical,
   threeDotHorizontal: MdiDotsHorizontal,
-  table: MdiTable,
+  table: TableIcon,
   excel: PhExcelThin, // h('span', { class: 'material-symbols' }, 'grid_on'),
   csv: PhCsvThin, // h('span', { class: 'material-symbols' }, 'grid_on'),
   code: Code,

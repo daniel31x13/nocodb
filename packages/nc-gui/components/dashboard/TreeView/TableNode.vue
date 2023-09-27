@@ -189,8 +189,8 @@ const isTableOpened = computed(() => {
                     <template #title>
                       {{ 'Change icon' }}
                     </template>
-
-                    <MdiTable
+                    <component
+                      :is="iconMap.table"
                       v-if="table.type === 'table'"
                       class="flex w-5 !text-gray-500 text-sm"
                       :class="{
