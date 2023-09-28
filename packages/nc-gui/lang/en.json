@@ -402,7 +402,7 @@
     "signInWithProvider": "Sign in with {provider}",
     "agreeToTos": "By signing up, you agree to the Terms of Service",
     "welcomeToNc": "Welcome to NocoDB!",
-    "inviteOnlySignup": "Allow signup only using invite url",
+    "inviteOnlySignup": "Allow signup only using invite URL",
     "nextRow": "Next Row",
     "prevRow": "Previous Row",
     "addRowGrid": "Manually add data in grid view",

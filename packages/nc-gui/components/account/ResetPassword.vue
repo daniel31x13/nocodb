@@ -66,7 +66,7 @@ const resetError = () => {
 
 <template>
   <div class="mx-auto relative flex flex-col justify-start gap-2 w-full px-8 md:(bg-white) max-w-[900px]">
-    <div class="text-xl my-4 text-left font-weight-bold">{{ $t('activity.changePwd') }}</div>
+    <div class="text-2xl my-4 text-left font-weight-bold">{{ $t('activity.changePwd') }}</div>
     <a-form
       ref="formValidator"
       data-testid="nc-user-settings-form"

@@ -61,7 +61,7 @@ const onValidate = async (_: any, valid: boolean) => {
 <template>
   <div class="flex flex-col items-center">
     <div class="flex flex-col w-150">
-      <div class="flex font-bold text-xl">Profile</div>
+      <div class="flex font-bold text-2xl">Profile</div>
       <div class="mt-5 flex flex-col border-1 rounded-2xl border-gray-200 p-6 gap-y-2">
         <div class="flex font-medium text-base">Account details</div>
         <div class="flex text-gray-500">Control your appearance.</div>

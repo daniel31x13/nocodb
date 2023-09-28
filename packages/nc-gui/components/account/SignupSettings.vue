@@ -31,7 +31,7 @@ loadSettings()
 
 <template>
   <div class="p-7 flex flex-col items-center">
-    <h1 class="text-xl mt-4 mb-5 pl-3.5 font-bold">Settings</h1>
+    <h1 class="text-2xl mt-4 mb-5 pl-3.5 font-bold">Settings</h1>
     <div class="flex items-center gap-2">
       <a-form-item>
         <a-checkbox
