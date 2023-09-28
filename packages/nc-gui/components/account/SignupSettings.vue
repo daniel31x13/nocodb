@@ -30,8 +30,8 @@ loadSettings()
 </script>
 
 <template>
-  <div class="p-7">
-    <h1 class="text-xl mt-4 mb-5 pl-3.5 font-weight-bold">Settings</h1>
+  <div class="p-7 flex flex-col items-center">
+    <h1 class="text-xl mt-4 mb-5 pl-3.5 font-bold">Settings</h1>
     <div class="flex items-center gap-2">
       <a-form-item>
         <a-checkbox
