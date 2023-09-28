@@ -550,6 +550,7 @@ watch(view, (nextView) => {
                       'max-height': '250px',
                       'resize': 'vertical',
                     }"
+                    autosize
                     size="large"
                     hide-details
                     placeholder="Form Title"
@@ -575,6 +576,7 @@ watch(view, (nextView) => {
                       'resize': 'vertical',
                     }"
                     size="large"
+                    autosize
                     hide-details
                     :placeholder="$t('msg.info.formDesc')"
                     :bordered="false"
